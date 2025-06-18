@@ -1,51 +1,84 @@
 import React, { useState } from "react";
-import './Login.css';
+
 
 
 function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+    const [formData, setFormData] = useState({
+        username: '',
+        password: ''
+    });
 
-  const valuser = 'deepshikha';
-  const valpass = '1234';
-  const valemail = 'paldeepshikha102@gmail.com';
+    const [errors, setErrors] = useState({});
+    const [message, setMessage] = useState(null);
 
-  const handleLogin = () => {
-    if (username === valuser && password === valpass && email === valemail) {
-      setMessage("Login successfully!");
-    } else {
-      setMessage("Invalid credentials");
-    }
-  };
+    const handleChange = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
 
-  return (
-  <div className="login-container">
-    <h2>Login Form</h2>
-    <input
-      type="text"
-      placeholder="Username"
-      value={username}
-      onChange={(e) => setUsername(e.target.value)}
-    /><br />
-    <input
-      type="password"
-      placeholder="Password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-    /><br />
-    <input
-      type="email"
-      placeholder="Email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-    /><br />
-    <button onClick={handleLogin}>Login</button>
-    <p>{message}</p>
-  </div>
-);
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
 
+    const validate = () => {
+        let isValid = true;
+        let newErrors = {};
+
+        if(formData.username.length === 0){
+            isValid = false;
+            newErrors.username = "Username is mandatory";
+        }
+
+        if(formData.password.length === 0){
+            isValid = false;
+            newErrors.password = "Password is mandatory";
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if(validate()){
+            if(formData.username === 'admin' && formData.password === 'admin'){
+                setMessage('Valid Credentials');
+            }else{
+                setMessage("Invalid Credentials");
+            }
+        }
+    };
+
+
+
+  return(
+    <>
+    <div className="container text-center">
+        {message && (message)}
+        <h1>Login page</h1>
+        <form onSubmit={handleSubmit}>
+            <div>
+                <label>Username: </label>
+                <input type="text" name="username" value={formData.username}
+                    onChange={handleChange}/>
+                    {errors.username && (errors.username)}
+            </div>
+            <div>
+                <label>Password: </label>
+                <input type="text" name="password" value={formData.password}
+                    onChange={handleChange}/>
+                    {errors.password && (errors.password)}
+            </div>
+            <div>
+                <button>Submit</button>
+            </div>
+        </form>
+
+    </div>
+    </>
+  );
 }
 
 export default Login;
