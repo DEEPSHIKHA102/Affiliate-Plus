@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import axios from 'axios';
 
 
 
-function Login() {
+function Login({updateUserDetails}) {
     const [formData, setFormData] = useState({
         username: '',
         password: ''
@@ -39,14 +40,24 @@ function Login() {
         return isValid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
 
         if(validate()){
-            if(formData.username === 'admin' && formData.password === 'admin'){
-                setMessage('Valid Credentials');
-            }else{
-                setMessage("Invalid Credentials");
+            const body = {
+                username: formData.username,
+                password: formData.password
+            };
+            const config = {
+                withCredentials: true
+            };
+
+            try{
+                const response = await axios.post('http://localhost:5001/auth/login',body,config);
+                updateUserDetails(response.data.user);
+            console.log(response);
+            }catch(error){
+                setErrors({message: "Something went wrong, please try again"});
             }
         }
     };

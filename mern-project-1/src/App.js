@@ -7,6 +7,7 @@ import Home from "./Home";
 import Login from "./Login";
 import Applayout from "./layout/AppLayout";
 import Dashboard from './pages/Dashboard';
+import axios from "axios";
 
 function App() {
   const [userDetails, setUserDetails] = useState(null);
@@ -14,6 +15,13 @@ function App() {
   const updateUserDetails = (details) => {
     setUserDetails(details);
   };
+
+  const isUserLoggedIn = async () =>{
+    const response = await axios.post('http://localhost:5001/auth/is-user-logged-in',{},{
+      withCredentials: true
+    });
+    updateUserDetails(response.data.user);
+  }
 
   return (
     <Routes>
