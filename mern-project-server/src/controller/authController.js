@@ -1,29 +1,50 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const Users = require('../model/Users');
+
 const secret = "9efe7859-8bf7-44e8-83a3-cd77b51aa6b8";
 
 const authController = {
-  login: (request, response) => {
-    const { username, password } = request.body;
+  login: async (request, response) => {
+    try {
+      // The body contains username and password because of express.json() middleware
+      const { username, password } = request.body;
 
-    if (username === 'admin' && password === 'admin') {
+      // Fetch user by email
+      const data = await Users.findOne({ email: username });
+        // console.log(data);
+      if (!data) {
+        return response.status(401).json({ message: 'Invalid Credentials' });
+      }
+
+      // Compare entered password with hashed password in DB
+      const isMatch = await bcrypt.compare(password, data.password);
+
+      if (!isMatch) {
+        return response.status(401).json({ message: 'Invalid Credentials' });
+      }
+
       const user = {
-        name: 'Deepshikha Pal',
-        email: '@paldeepshi'
+        id: data._id,
+        name: data.name,
+        email: data.email
       };
 
       const token = jwt.sign(user, secret, { expiresIn: '1h' });
 
       response.cookie('jwtToken', token, {
         httpOnly: true,
-        secure: false, // set to true only when using HTTPS
+        secure: false, // Set true for HTTPS
         sameSite: 'Lax',
         domain: 'localhost',
         path: '/'
       });
 
       response.json({ user: user, message: 'User authenticated' });
-    } else {
-      response.status(401).json({ message: 'Invalid credentials' });
+
+    } catch (error) {
+      console.log(error);
+      response.status(500).json({ error: 'Internal server error' });
     }
   },
 
