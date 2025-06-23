@@ -1,94 +1,103 @@
 import React, { useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 
+function Login({ updateUserDetails }) {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
 
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(null);
 
-function Login({updateUserDetails}) {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: ''
-    });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-    const [errors, setErrors] = useState({});
-    const [message, setMessage] = useState(null);
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-    const handleChange = (e) => {
-        const name = e.target.name;
-        const value = e.target.value;
+  const validate = () => {
+    let isValid = true;
+    let newErrors = {};
 
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+    if (formData.username.trim() === '') {
+      isValid = false;
+      newErrors.username = "Username is mandatory";
+    }
 
-    const validate = () => {
-        let isValid = true;
-        let newErrors = {};
+    if (formData.password.trim() === '') {
+      isValid = false;
+      newErrors.password = "Password is mandatory";
+    }
 
-        if(formData.username.length === 0){
-            isValid = false;
-            newErrors.username = "Username is mandatory";
-        }
+    setErrors(newErrors);
+    return isValid;
+  };
 
-        if(formData.password.length === 0){
-            isValid = false;
-            newErrors.password = "Password is mandatory";
-        }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        setErrors(newErrors);
-        return isValid;
-    };
+    if (validate()) {
+      const body = {
+        username: formData.username,
+        password: formData.password
+      };
 
-    const handleSubmit = async(e) => {
-        e.preventDefault();
+      try {
+        const response = await axios.post(
+          'http://localhost:5001/auth/login',
+          body,
+          { withCredentials: true }
+        );
 
-        if(validate()){
-            const body = {
-                username: formData.username,
-                password: formData.password
-            };
-            const config = {
-                withCredentials: true
-            };
+        updateUserDetails(response.data.user);
+        setMessage("Login successful!");
+        setErrors({});
+      } catch (error) {
+        console.error(error);
+        setMessage(null);
+        setErrors({ message: "Invalid credentials or server error" });
+      }
+    }
+  };
 
-            try{
-                const response = await axios.post('http://localhost:5001/auth/login',body,config);
-                updateUserDetails(response.data.user);
-            console.log(response);
-            }catch(error){
-                setErrors({message: "Something went wrong, please try again"});
-            }
-        }
-    };
+  return (
+    <div>
+      <h1>Login Page</h1>
+      {message && <p>{message}</p>}
+      {errors.message && <p style={{ color: 'red' }}>{errors.message}</p>}
 
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username: </label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+          />
+          {errors.username && <p style={{ color: 'red' }}>{errors.username}</p>}
+        </div>
 
+        <div>
+          <label>Password: </label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          {errors.password && <p style={{ color: 'red' }}>{errors.password}</p>}
+        </div>
 
-  return(
-    <>
-    <div className="container text-center">
-        {message && (message)}
-        <h1>Login page</h1>
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label>Username: </label>
-                <input type="text" name="username" value={formData.username}
-                    onChange={handleChange}/>
-                    {errors.username && (errors.username)}
-            </div>
-            <div>
-                <label>Password: </label>
-                <input type="text" name="password" value={formData.password}
-                    onChange={handleChange}/>
-                    {errors.password && (errors.password)}
-            </div>
-            <div>
-                <button>Submit</button>
-            </div>
-        </form>
-
+        <div>
+          <button type="submit">Submit</button>
+        </div>
+      </form>
     </div>
-    </>
   );
 }
 
