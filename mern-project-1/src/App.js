@@ -1,10 +1,10 @@
 // App.js
-import "./App.css"; // This applies styles to the whole app
-
+import "./App.css";
 import React, { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./Home";
 import Login from "./Login";
+import Register from "./Register";
 import Applayout from "./layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import axios from "axios";
@@ -18,23 +18,23 @@ function App() {
     setUserDetails(details);
   };
 
-  const isUserLoggedIn = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:5001/auth/is-user-logged-in",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      updateUserDetails(response.data.user);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    isUserLoggedIn();
+    const checkLogin = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:5001/auth/is-user-logged-in",
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+        updateUserDetails(response.data.user);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    checkLogin();
   }, []);
 
   return (
@@ -64,6 +64,18 @@ function App() {
         }
       />
       <Route
+        path="/register"
+        element={
+          userDetails ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <Applayout>
+              <Register updateUserDetails={updateUserDetails} />
+            </Applayout>
+          )
+        }
+      />
+      <Route
         path="/dashboard"
         element={userDetails ? <Dashboard /> : <Navigate to="/login" />}
       />
@@ -77,7 +89,6 @@ function App() {
           )
         }
       />
-
       <Route
         path="/error"
         element={

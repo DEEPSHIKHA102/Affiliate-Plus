@@ -67,6 +67,33 @@ const authController = {
         response.json({ message: 'User is logged in', user: user });
       }
     });
+  },
+  register:async(request,response)=>{
+    try{
+      //Extact attributes from the request body
+      const {username,password,name} = request.body;
+
+      //firstly check if user already exist with the given email
+      const data = await Users.findOne({email:username});
+      if(data){
+       return response.status(401).json({ message: 'Account already exist with given email' });
+      }
+
+      //Encrypt the pasword before saving the record to the database
+      const encryptedPassword = await bcrypt.hash(password,10);
+
+      //Create mongoose model object and set the record  values
+      const user = new Users({
+        email: username,
+        password: encryptedPassword,
+        name:name
+      });
+      await user.save();
+      response.status(200).json({ message: 'UserRegister' });
+    }catch(error){
+      console.log(error);
+      return response.status(500).json({ error: 'internal server error' });
+    }
   }
 };
 
