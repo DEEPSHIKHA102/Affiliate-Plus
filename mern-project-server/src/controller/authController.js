@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Users = require('../model/Users');
+const { OAuth2Client } = require('google-auth-library');
+const { response } = require('express');
 
 const secret = "9efe7859-8bf7-44e8-83a3-cd77b51aa6b8";
 
@@ -94,7 +96,66 @@ const authController = {
       console.log(error);
       return response.status(500).json({ error: 'internal server error' });
     }
+  },
+
+  
+
+googleAuth: async (request, response) => {
+  try {
+    const { idToken } = request.body;
+
+    if (!idToken) {
+      return response.status(401).json({ message: 'Invalid request' });
+    }
+
+    const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    const googleResponse = await googleClient.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = googleResponse.getPayload();
+    const { sub: googleId, name, email } = payload;
+
+    let data = await Users.findOne({ email: email });
+
+    // If user doesn't exist, create a new one
+    if (!data) {
+      data = new Users({
+        email: email,
+        name: name,
+        isGoogleUser: true,
+        googleId: googleId
+      });
+      await data.save();
+    }
+
+    const user = {
+      id: data._id ? data._id : googleId,
+      username: email,
+      name: name
+    };
+
+    const token = jwt.sign(user, secret, { expiresIn: '1h' });
+
+    response.cookie('jwtToken', token, {
+      httpOnly: true,
+      secure: true, // Set false for localhost testing
+      domain: 'localhost',
+      path: '/'
+    });
+
+    response.json({ user: user, message: 'User authenticated' });
+
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    return response.status(500).json({ message: 'Internal server error' });
   }
+}
+
+
+  
 };
 
 module.exports = authController;
