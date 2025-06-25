@@ -1,14 +1,22 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-function Logout({updateUserDetails}){
+import { serverEndpoint } from "../config";
+import { useDispatch } from "react-redux";
+import { CLEAR_USER } from "../redux/user/actions";
+
+function Logout(){
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const handleLogout = async()=>{
         try{
-            await axios.post('http://localhost:5001/auth/logout',{},{
+            await axios.post(`${serverEndpoint}/auth/logout`,{},{
                 withCredentials: true
             });
-            updateUserDetails(null);
+            dispatch({
+                type: CLEAR_USER  
+            });
+
             
         }catch(error){
             console.log(error);

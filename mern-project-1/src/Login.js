@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import {GoogleOAuthProvider, GoogleLogin} from '@react-oauth/google';
 import { serverEndpoint } from "./config";
+import { useDispatch } from "react-redux";
+import { SET_USER } from "./redux/user/actions";
 
-function Login({ updateUserDetails }) {
+function Login() {
+
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -47,26 +51,23 @@ function Login({ updateUserDetails }) {
         username: formData.username,
         password: formData.password
       };
-
+      const config = {
+        //Tells axios to include cookie in the rquest + some other auth headers
+        withCredentials: true
+      };
       try {
-        const response = await axios.post(
-          `${serverEndpoint}/auth/login`,
-          body,
-          { withCredentials: true }
-        );
-
-        updateUserDetails(response.data.user);
-        setMessage("Login successful!");
-        setErrors({});
+        const response = await axios.post(`${serverEndpoint}/auth/login`,body,config);
+        dispatch({
+          type: SET_USER,
+          payload: response.data.user
+        });
       } catch (error) {
         console.error(error);
-        setMessage(null);
         setErrors({ message: "Invalid credentials or server error" });
       }
     }
 
   };
-
   const handleGoogleSuccess = async (authResponse) => {
     try{
       const response = await axios.post(`${serverEndpoint}/auth/google-auth`,{
@@ -74,7 +75,10 @@ function Login({ updateUserDetails }) {
       },{
         withCredentials:true
       });
-      updateUserDetails(response.data.user);
+      dispatch({
+          type: SET_USER,
+          payload: response.data.user
+        });
 
     }catch(error){
       console.log(error);

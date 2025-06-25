@@ -1,6 +1,4 @@
-// App.js
-import "./App.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./Home";
 import Login from "./Login";
@@ -11,13 +9,12 @@ import axios from "axios";
 import Logout from "./pages/Logout";
 import Error from "./pages/Error";
 import { serverEndpoint } from "./config";
+import { useDispatch, useSelector } from "react-redux";
+import { SET_USER } from "./redux/user/actions";
 
 function App() {
-  const [userDetails, setUserDetails] = useState(null);
-
-  const updateUserDetails = (details) => {
-    setUserDetails(details);
-  };
+  const dispatch = useDispatch();
+  const userDetails = useSelector((state) => state.userDetails);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -25,18 +22,19 @@ function App() {
         const response = await axios.post(
           `${serverEndpoint}/auth/is-user-logged-in`,
           {},
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-        updateUserDetails(response.data.user);
+        dispatch({
+          type: SET_USER,
+          payload: response.data.user,
+        });
       } catch (error) {
-        console.log(error);
+        console.log("User not logged in:", error);
       }
     };
 
     checkLogin();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Routes>
@@ -59,7 +57,7 @@ function App() {
             <Navigate to="/dashboard" />
           ) : (
             <Applayout>
-              <Login updateUserDetails={updateUserDetails} />
+              <Login />
             </Applayout>
           )
         }
@@ -71,7 +69,7 @@ function App() {
             <Navigate to="/dashboard" />
           ) : (
             <Applayout>
-              <Register updateUserDetails={updateUserDetails} />
+              <Register />
             </Applayout>
           )
         }
@@ -82,13 +80,7 @@ function App() {
       />
       <Route
         path="/logout"
-        element={
-          userDetails ? (
-            <Logout updateUserDetails={updateUserDetails} />
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
+        element={userDetails ? <Logout /> : <Navigate to="/login" />}
       />
       <Route
         path="/error"
