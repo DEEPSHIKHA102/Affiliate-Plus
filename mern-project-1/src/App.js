@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import axios from "axios";
 import Logout from "./pages/Logout";
 import Error from "./pages/Error";
+import { serverEndpoint } from "./config";
 
 function App() {
   const [userDetails, setUserDetails] = useState(null);
@@ -22,7 +23,7 @@ function App() {
     const checkLogin = async () => {
       try {
         const response = await axios.post(
-          "http://localhost:5001/auth/is-user-logged-in",
+          `${serverEndpoint}/auth/is-user-logged-in`,
           {},
           {
             withCredentials: true,
