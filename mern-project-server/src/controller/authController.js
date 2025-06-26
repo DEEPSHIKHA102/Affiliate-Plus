@@ -3,12 +3,18 @@ const bcrypt = require('bcryptjs');
 const Users = require('../model/Users');
 const { OAuth2Client } = require('google-auth-library');
 const { response } = require('express');
+const { validationResult } = require('express-validator');
 
 const secret = "9efe7859-8bf7-44e8-83a3-cd77b51aa6b8";
 
 const authController = {
   login: async (request, response) => {
     try {
+      const errors = validationResult(request);
+      if(!errors.isEmpty()){
+        return response.status(401).json({errors: errors.array()});
+      }
+
       // The body contains username and password because of express.json() middleware
       const { username, password } = request.body;
 
