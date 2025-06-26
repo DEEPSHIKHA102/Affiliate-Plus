@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const express =  require('express'); //include the express module
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./src/routes/authRoutes');
-const linksRoute = require('./src/routes/linksRoutes');
+const linksRoutes = require('./src/routes/linksRoutes');
 const cors = require('cors');
 
 mongoose.connect(process.env.MONGO_URI)
@@ -21,7 +21,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use('/auth', authRoutes);
-app.use('/links', linksRoute);
+app.use('/links', linksRoutes);
 
 
 const PORT = 5001;
