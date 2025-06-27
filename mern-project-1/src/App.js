@@ -1,16 +1,17 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Home from "./Home";
-import Login from "./Login";
-import Register from "./Register";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Applayout from "./layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import axios from "axios";
 import Logout from "./pages/Logout";
 import Error from "./pages/Error";
-import { serverEndpoint } from "./config";
+import { serverEndpoint } from "./config/config";
 import { useDispatch, useSelector } from "react-redux";
 import { SET_USER } from "./redux/user/actions";
+ import UserLayout from "./layout/UserLayout";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,37 +42,39 @@ function App() {
       <Route
         path="/"
         element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
+          userDetails ? <UserLayout>
+<Navigate to='/dashboard' />
+</UserLayout> :
             <Applayout>
               <Home />
             </Applayout>
-          )
+          
         }
       />
       <Route
         path="/login"
         element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
+          userDetails ? 
+          <UserLayout>
+ <Dashboard />
+</UserLayout> :
+
             <Applayout>
               <Login />
             </Applayout>
-          )
+          
         }
       />
       <Route
         path="/register"
         element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
+          userDetails ? 
+            <Navigate to="/dashboard" />:
+          
             <Applayout>
               <Register />
             </Applayout>
-          )
+          
         }
       />
       <Route
@@ -85,13 +88,14 @@ function App() {
       <Route
         path="/error"
         element={
-          userDetails ? (
-            <Error />
-          ) : (
+          userDetails ?
+          <UserLayout>
+ <Error />
+</UserLayout> :
             <Applayout>
               <Error />
             </Applayout>
-          )
+          
         }
       />
     </Routes>

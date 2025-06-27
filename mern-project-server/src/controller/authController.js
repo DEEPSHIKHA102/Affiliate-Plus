@@ -67,7 +67,6 @@ const authController = {
     if (!token) {
       return response.status(401).json({ message: 'Unauthorized access' });
     }
-
     jwt.verify(token, secret, (error, user) => {
       if (error) {
         return response.status(401).json({ message: 'Unauthorized access' });
@@ -80,16 +79,13 @@ const authController = {
     try{
       //Extact attributes from the request body
       const {username,password,name} = request.body;
-
       //firstly check if user already exist with the given email
       const data = await Users.findOne({email:username});
       if(data){
        return response.status(401).json({ message: 'Account already exist with given email' });
       }
-
       //Encrypt the pasword before saving the record to the database
       const encryptedPassword = await bcrypt.hash(password,10);
-
       //Create mongoose model object and set the record  values
       const user = new Users({
         email: username,
@@ -97,19 +93,29 @@ const authController = {
         name:name
       });
       await user.save();
-      response.status(200).json({ message: 'UserRegister' });
+      const userDetails = {
+id: user._id,
+name: user.name,
+email: user.email
+};
+const token = jwt.sign(userDetails,
+secret, { expiresIn: '1h' });
+response.cookie('jwtToken', token, {
+ httpOnly: true,
+secure: true,
+domain: 'localhost',
+path: '/'
+});
+ response.json({ message: 'User registered', user: userDetails });
     }catch(error){
       console.log(error);
       return response.status(500).json({ error: 'internal server error' });
     }
   },
 
-  
-
 googleAuth: async (request, response) => {
   try {
     const { idToken } = request.body;
-
     if (!idToken) {
       return response.status(401).json({ message: 'Invalid request' });
     }
@@ -120,12 +126,10 @@ googleAuth: async (request, response) => {
       idToken: idToken,
       audience: process.env.GOOGLE_CLIENT_ID
     });
-
     const payload = googleResponse.getPayload();
     const { sub: googleId, name, email } = payload;
 
     let data = await Users.findOne({ email: email });
-
     // If user doesn't exist, create a new one
     if (!data) {
       data = new Users({
