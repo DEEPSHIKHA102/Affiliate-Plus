@@ -7,6 +7,7 @@ const { validationResult } = require('express-validator');
 
 const secret = process.env.JWT_SECRET;
 
+
 const authController = {
   login: async (request, response) => {
     try {
