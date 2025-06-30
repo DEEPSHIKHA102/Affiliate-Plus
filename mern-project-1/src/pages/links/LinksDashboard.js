@@ -145,14 +145,21 @@ function LinksDashboard() {
       setErrors({ message: "Unable to fetch links at the moment. Please try again" });
     }
   };
-
   useEffect(() => {
     fetchLinks();
   }, []);
-
   const columns = [
     { field: "campaignTitle", headerName: "Campaign", flex: 2 },
-    { field: "originalUrl", headerName: "URL", flex: 3 },
+    { field: "originalUrl", headerName: "URL", flex: 3, renderCel: (params) =>(
+      <>
+      <a href={`${serverEndpoint}/links/r/${params.row._id}`}
+      target='_blank' 
+      rel="noopener noreferrer" 
+      >
+        {params.row.originalUrl}
+      </a>
+      </>
+    )},
     { field: "category", headerName: "Category", flex: 2 },
     { field: "clickCount", headerName: "Clicks", flex: 1 },
     {
