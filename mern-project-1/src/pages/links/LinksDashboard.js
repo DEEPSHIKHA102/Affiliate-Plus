@@ -4,11 +4,88 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {serverEndpoint} from '../../config/config';
+import { serverEndpoint } from '../../config/config';
+import { Modal } from "react-bootstrap";
 
 function LinksDashboard() {
   const [errors, setErrors] = useState({});
   const [linksData, setLinksData] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const [formData, setFormData] = useState({
+    campaignTitle: "",
+    originalUrl: "",
+    category: ""
+  });
+
+  const handleChange = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const validate = () => {
+    let newErrors = {};
+    let isValid = true;
+
+    if (formData.campaignTitle.length === 0) {
+      newErrors.campaignTitle = "Campaign Title is mandatory";
+      isValid = false;
+    }
+
+    if (formData.originalUrl.length === 0) {
+      newErrors.originalUrl = "URL is mandatory";
+      isValid = false;
+    }
+
+    if (formData.category.length === 0) {
+      newErrors.category = "Category is mandatory";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (validate()) {
+      const body = {
+        campaign_title: formData.campaignTitle,
+        original_url: formData.originalUrl,
+        category: formData.category
+      };
+      const configuration = {
+        withCredentials: true
+      };
+      try {
+        await axios.post(`${serverEndpoint}/links`, body, configuration);
+        await fetchLinks();
+        setFormData({
+          campaignTitle: "",
+          originalUrl: "",
+          category: ""
+        });
+      } catch (error) {
+        setErrors({ message: 'Unable to add the Link, please try again' });
+      } finally {
+        handleCloseModal();
+      }
+    }
+  };
 
   const fetchLinks = async () => {
     try {
@@ -18,7 +95,7 @@ function LinksDashboard() {
       setLinksData(response.data.data);
     } catch (error) {
       console.log(error);
-      setErrors({ essage: "Unable to fetch links at the moment. Please try again",});
+      setErrors({ message: "Unable to fetch links at the moment. Please try again" });
     }
   };
 
@@ -31,8 +108,8 @@ function LinksDashboard() {
     { field: "originalUrl", headerName: "URL", flex: 3 },
     { field: "category", headerName: "Category", flex: 2 },
     { field: "clickCount", headerName: "Clicks", flex: 1 },
-    { 
-        field: "action", headerName: "Actions", flex: 1, renderCell: (params) => (
+    {
+      field: "action", headerName: "Actions", flex: 1, renderCell: (params) => (
         <>
           <IconButton>
             <EditIcon />
@@ -47,7 +124,13 @@ function LinksDashboard() {
 
   return (
     <div className="container py-4">
-      <h2>Manage Affiliate Links</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>Manage Affiliate Links</h2>
+        <button className="btn btn-primary btn-sm" onClick={handleOpenModal}>
+          + Add
+        </button>
+      </div>
+
       {errors.message && (
         <div className="alert alert-danger" role="alert">
           {errors.message}
@@ -56,7 +139,7 @@ function LinksDashboard() {
 
       <div style={{ height: 500, width: "100%" }}>
         <DataGrid
-        getRowId={(row) => row._id}
+          getRowId={(row) => row._id}
           rows={linksData}
           columns={columns}
           initialState={{
@@ -66,8 +149,79 @@ function LinksDashboard() {
           }}
           pageSizeOptions={[20, 50, 100]}
           disableRowSelectionOnClick
+          showToolbar
+          sx={{
+            fontFamily: "inherit"
+          }}
         />
       </div>
+
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Add Link
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="campaignTitle" className="formlabel">Campaign Title</label>
+              <input
+                type="text"
+                className={`formcontrol ${errors.campaignTitle ? 'is-invalid' : ''}`}
+                id="campaignTitle"
+                name="campaignTitle"
+                value={formData.campaignTitle}
+                onChange={handleChange}
+              />
+              {errors.campaignTitle && (
+                <div className="invalid-feedback">
+                  {errors.campaignTitle}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="originalUrl" className="formlabel">URL</label>
+              <input
+                type="text"
+                className={`formcontrol ${errors.originalUrl ? 'is-invalid' : ''}`}
+                id="originalUrl"
+                name="originalUrl"
+                value={formData.originalUrl}
+                onChange={handleChange}
+              />
+              {errors.originalUrl && (
+                <div className="invalid-feedback">
+                  {errors.originalUrl}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="category" className="formlabel">Category</label>
+              <input
+                type="text"
+                className={`formcontrol ${errors.category ? 'is-invalid' : ''}`}
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+              />
+              {errors.category && (
+                <div className="invalid-feedback">
+                  {errors.category}
+                </div>
+              )}
+            </div>
+
+            <div className="d-grid">
+              <button type="submit" className="btn btn-primary">Submit</button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

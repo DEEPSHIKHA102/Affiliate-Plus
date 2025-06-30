@@ -5,7 +5,7 @@ function Header() {
     <nav className="navbar navbar-expand-lg bg-body-tertiary border-bottom border-body">
       <div className="container">
         <Link className="navbar-brand" to="/">
-          Affiliate++
+          Deepshiii+++
         </Link>
         <button
           className="navbar-toggler"
