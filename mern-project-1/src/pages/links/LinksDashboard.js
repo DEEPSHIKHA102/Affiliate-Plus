@@ -10,21 +10,63 @@ import { Modal } from "react-bootstrap";
 function LinksDashboard() {
   const [errors, setErrors] = useState({});
   const [linksData, setLinksData] = useState([]);
-  const [showModal, setShowModal] = useState(false);
 
-  const handleOpenModal = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [formData, setFormData] = useState({
+    id: "",
+    campaignTitle: "",
+    originalUrl: "",
+    category: ""
+  });
+
+  const handleShowDeleteModal = (linkId) => {
+    setFormData({ ...formData, id: linkId });
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`${serverEndpoint}/links/${formData.id}`, {
+        withCredentials: true
+      });
+      await fetchLinks();
+      handleCloseDeleteModal();
+    } catch (error) {
+      setErrors({ message: 'Unable to delete the link, please try again' });
+    }
+  };
+
+  const handleOpenModal = (isEdit, data = {}) => {
+    if (isEdit) {
+      setFormData({
+        id: data._id,
+        campaignTitle: data.campaignTitle,
+        originalUrl: data.originalUrl,
+        category: data.category
+      });
+    } else {
+      setFormData({
+        id: "",
+        campaignTitle: "",
+        originalUrl: "",
+        category: ""
+      });
+    }
+    setIsEdit(isEdit);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
   };
-
-  const [formData, setFormData] = useState({
-    campaignTitle: "",
-    originalUrl: "",
-    category: ""
-  });
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -68,13 +110,18 @@ function LinksDashboard() {
         original_url: formData.originalUrl,
         category: formData.category
       };
-      const configuration = {
-        withCredentials: true
-      };
+      const configuration = { withCredentials: true };
+
       try {
-        await axios.post(`${serverEndpoint}/links`, body, configuration);
+        if (isEdit) {
+          await axios.put(`${serverEndpoint}/links/${formData.id}`, body, configuration);
+        } else {
+          await axios.post(`${serverEndpoint}/links`, body, configuration);
+        }
+
         await fetchLinks();
         setFormData({
+          id: "",
           campaignTitle: "",
           originalUrl: "",
           category: ""
@@ -112,10 +159,10 @@ function LinksDashboard() {
       field: "action", headerName: "Actions", flex: 1, renderCell: (params) => (
         <>
           <IconButton>
-            <EditIcon />
+            <EditIcon onClick={() => handleOpenModal(true, params.row)} />
           </IconButton>
           <IconButton>
-            <DeleteIcon />
+            <DeleteIcon onClick={() => handleShowDeleteModal(params.row._id)} />
           </IconButton>
         </>
       ),
@@ -126,8 +173,11 @@ function LinksDashboard() {
     <div className="container py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Manage Affiliate Links</h2>
-        <button className="btn btn-primary btn-sm" onClick={handleOpenModal}>
-          + Add
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => handleOpenModal(false)}
+        >
+          + Add Link
         </button>
       </div>
 
@@ -150,19 +200,15 @@ function LinksDashboard() {
           pageSizeOptions={[20, 50, 100]}
           disableRowSelectionOnClick
           showToolbar
-          sx={{
-            fontFamily: "inherit"
-          }}
+          sx={{ fontFamily: "inherit" }}
         />
       </div>
 
+      {/* Add/Edit Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>
-            Add Link
-          </Modal.Title>
+          <Modal.Title>{isEdit ? "Update Link" : "Add Link"}</Modal.Title>
         </Modal.Header>
-
         <Modal.Body>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
@@ -176,9 +222,7 @@ function LinksDashboard() {
                 onChange={handleChange}
               />
               {errors.campaignTitle && (
-                <div className="invalid-feedback">
-                  {errors.campaignTitle}
-                </div>
+                <div className="invalid-feedback">{errors.campaignTitle}</div>
               )}
             </div>
 
@@ -193,9 +237,7 @@ function LinksDashboard() {
                 onChange={handleChange}
               />
               {errors.originalUrl && (
-                <div className="invalid-feedback">
-                  {errors.originalUrl}
-                </div>
+                <div className="invalid-feedback">{errors.originalUrl}</div>
               )}
             </div>
 
@@ -210,17 +252,35 @@ function LinksDashboard() {
                 onChange={handleChange}
               />
               {errors.category && (
-                <div className="invalid-feedback">
-                  {errors.category}
-                </div>
+                <div className="invalid-feedback">{errors.category}</div>
               )}
             </div>
 
             <div className="d-grid">
-              <button type="submit" className="btn btn-primary">Submit</button>
+              <button type="submit" className="btn btn-primary">
+                {isEdit ? "Update" : "Submit"}
+              </button>
             </div>
           </form>
         </Modal.Body>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete the link?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-secondary" onClick={handleCloseDeleteModal}>
+            Cancel
+          </button>
+          <button className="btn btn-danger" onClick={handleDelete}>
+            Delete
+          </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
