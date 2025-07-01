@@ -36,7 +36,8 @@ const authController = {
       const user = {
         id: data._id,
         name: data.name,
-        email: data.email
+        email: data.email,
+        role: data.role ? data.role: 'admin'
       };
 
       const token = jwt.sign(user, secret, { expiresIn: '1h' });
@@ -91,7 +92,8 @@ const authController = {
       const user = new Users({
         email: username,
         password: encryptedPassword,
-        name:name
+        name:name,
+        role: data.role ? data.role :'admin'
       });
       await user.save();
       const userDetails = {
@@ -137,7 +139,8 @@ googleAuth: async (request, response) => {
         email: email,
         name: name,
         isGoogleUser: true,
-        googleId: googleId
+        googleId: googleId,
+        role: 'admin'
       });
       await data.save();
     }
@@ -145,7 +148,8 @@ googleAuth: async (request, response) => {
     const user = {
       id: data._id ? data._id : googleId,
       username: email,
-      name: name
+      name: name,
+      role: data.role ? data.role: 'admin' // this is the ensure backard compatibilty
     };
 
     const token = jwt.sign(user, secret, { expiresIn: '1h' });

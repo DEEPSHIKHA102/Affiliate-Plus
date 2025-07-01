@@ -23,7 +23,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use('/auth', authRoutes);
 app.use('/links', linksRoutes);
-app.use('./users', userRoutes);
+app.use('/users', userRoutes);
 
 
 const PORT = 5001;
