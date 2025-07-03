@@ -1,9 +1,9 @@
-import LinksDashboard from "./links/LinksDashboard";
+import LinksDashboard from './links/LinksDashboard';
 
 function Dashboard() {
-  return (
-      <LinksDashboard />  
-  );
+    return (
+        <LinksDashboard />
+    );
 }
 
 export default Dashboard;

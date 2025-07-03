@@ -5,27 +5,27 @@ import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { CLEAR_USER } from "../redux/user/actions";
 
-function Logout(){
+function Logout() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const handleLogout = async()=>{
-        try{
-            await axios.post(`${serverEndpoint}/auth/logout`,{},{
+
+    const handleLogout = async () => {
+        try {
+            await axios.post(`${serverEndpoint}/auth/logout`, {}, {
                 withCredentials: true
             });
             dispatch({
-                type: CLEAR_USER  
+                type: CLEAR_USER
             });
-
-            
-        }catch(error){
+        } catch (error) {
             console.log(error);
             navigate('/error');
         }
     };
-    useEffect(()=>{
+
+    useEffect(() => {
         handleLogout();
-    },[]);
+    }, []);
 }
 
 export default Logout;

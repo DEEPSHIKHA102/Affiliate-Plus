@@ -7,6 +7,7 @@ const { validationResult } = require('express-validator');
 const secret = process.env.JWT_SECRET;
 
 const authController = {
+  // ✅ Email + Password Login
   login: async (request, response) => {
     try {
       const errors = validationResult(request);
@@ -30,32 +31,34 @@ const authController = {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: data.role ? data.role :'admin',
+        role: user.role || 'admin',
         adminId: user.adminId,
-        credits: data.credits
+        credits: user.credits || 0
       };
 
       const token = jwt.sign(userPayload, secret, { expiresIn: '1h' });
 
       response.cookie('jwtToken', token, {
         httpOnly: true,
-        secure: true,
-        domain: 'localhost',
+        secure: false, // set to true only if using HTTPS
+        sameSite: 'Lax',
         path: '/'
       });
 
       response.json({ user: userPayload, message: 'User authenticated' });
     } catch (error) {
-      console.log(error);
+      console.error("Login error:", error.message);
       response.status(500).json({ error: 'Internal server error' });
     }
   },
 
+  // ✅ Logout
   logout: (request, response) => {
-    response.clearCookie('jwtToken');
+    response.clearCookie('jwtToken', { path: '/' });
     response.json({ message: 'Logout successful' });
   },
 
+  // ✅ Session Check
   isUserLoggedIn: async (request, response) => {
     const token = request.cookies.jwtToken;
 
@@ -63,21 +66,21 @@ const authController = {
       return response.status(401).json({ message: 'Unauthorized access' });
     }
 
-    jwt.verify(token, secret, async(error, user) => {
+    jwt.verify(token, secret, async (error, user) => {
       if (error) {
         return response.status(401).json({ message: 'Unauthorized access' });
       } else {
-        const latestUserDetails = await Users.findById({ _id: user.id });
+        const latestUserDetails = await Users.findById(user.id);
         response.json({ message: 'User is logged in', user: latestUserDetails });
       }
     });
   },
 
+  // ✅ Register New User
   register: async (request, response) => {
     try {
-      const { username, password, name, role } = request.body;
+      const { username, password, name } = request.body;
 
-      // ✅ Password length validation
       if (!password || password.length < 3) {
         return response.status(400).json({ message: 'Password must be at least 3 characters long' });
       }
@@ -103,73 +106,77 @@ const authController = {
         name: user.name,
         email: user.email,
         role: user.role,
-        credits: user.credits
+        credits: user.credits || 0
       };
 
       const token = jwt.sign(userDetails, secret, { expiresIn: '1h' });
 
       response.cookie('jwtToken', token, {
         httpOnly: true,
-        secure: true,
-        domain: 'localhost',
+        secure: false,
+        sameSite: 'Lax',
         path: '/'
       });
 
       response.json({ message: 'User registered', user: userDetails });
     } catch (error) {
-      console.log(error);
+      console.error("Register error:", error.message);
       return response.status(500).json({ error: 'Internal Server Error' });
     }
   },
 
+  // ✅ Google Auth
   googleAuth: async (request, response) => {
     try {
       const { idToken } = request.body;
+
       if (!idToken) {
         return response.status(401).json({ message: 'Invalid request' });
       }
 
       const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-      const googleResponse = await googleClient.verifyIdToken({
-        idToken: idToken,
+
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
         audience: process.env.GOOGLE_CLIENT_ID
       });
 
-      const payload = googleResponse.getPayload();
+      const payload = ticket.getPayload();
       const { sub: googleId, name, email } = payload;
 
-      let user = await Users.findOne({ email: email });
+      let user = await Users.findOne({ email });
+
       if (!user) {
         user = new Users({
-          email: email,
-          name: name,
+          email,
+          name,
+          googleId,
           isGoogleUser: true,
-          googleId: googleId,
           role: 'admin'
         });
         await user.save();
       }
 
       const userPayload = {
-        id: data._id ? data._id : googleId,
-        username: email,
-        name: name,
-        role: data.role ? data.role :'admin', // This is the ensure backward compatibility
-        credits: data.credits
+        id: user._id,
+        username: user.email,
+        name: user.name,
+        role: user.role || 'admin',
+        credits: user.credits || 0
       };
 
       const token = jwt.sign(userPayload, secret, { expiresIn: '1h' });
 
       response.cookie('jwtToken', token, {
         httpOnly: true,
-        secure: true,
-        domain: 'localhost',
+        secure: false,
+        sameSite: 'Lax',
         path: '/'
       });
 
       response.json({ user: userPayload, message: 'User authenticated' });
     } catch (error) {
-      console.log(error);
+      console.error("Google Auth Error:", error.message);
       return response.status(500).json({ message: 'Internal server error' });
     }
   }

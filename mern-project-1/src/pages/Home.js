@@ -1,12 +1,9 @@
-// import {Link} from "react-router-dom";
-function Home(){
+function Home() {
     return (
-        <div className='container.container fluid'>
-            <h1>Welcome to MERN Project</h1>
-
-            {/* <Link to='/'>Home</Link>
-            <Link to="/login">Login</Link> */}
+        <div className="container text-center">
+            <h1>Welcome to MERN Projects</h1>
         </div>
-    )
+    );
 }
-export default Home
+
+export default Home;

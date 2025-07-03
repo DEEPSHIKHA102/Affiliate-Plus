@@ -1,15 +1,15 @@
-
-import React from "react";
-import Header from "./Header";
+import App from "../App";
 import Footer from "./Footer";
+import Header from "./Header";
 
-function AppLayout({children}){
-    return(
+function AppLayout({ children }) {
+    return (
         <>
-        <Header/>
-        {children}
-        <Footer/>
+            <Header />
+            { children }
+            <Footer />
         </>
     );
 }
+
 export default AppLayout;
