@@ -2,19 +2,19 @@ const permissions = require("../constants/permissions");
 
 const authorize = (requiredPermission) => {
     return (request, response, next) => {
-        //Authmiddleware will run before this middleware
+        // Authmiddleware will run before this middleware
         const user = request.user;
 
-        if(!user){
+        if (!user) {
             return response.status(401).json({
-                message: "Unauthorized access"
+                message: 'Unauthorized access'
             });
         }
 
         const userPermissions = permissions[user.role] || [];
-        if(!userPermissions.includes(requiredPermission)){
+        if (!userPermissions.includes(requiredPermission)) {
             return response.status(403).json({
-                message: "Forbidden: Insufficient Permission"
+                message: 'Forbidden: Insufficient Permission'
             });
         }
 
