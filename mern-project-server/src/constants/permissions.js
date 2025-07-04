@@ -1,13 +1,13 @@
 const permissions = {
     admin: [
         'link:create',
-        'user:read',
         'link:update',
-        'user:delete',
-        'link:create',
+        'link:delete',
+        'link:read',
         'user:read',
-        'link:update',
         'user:delete',
+        'user:create',
+        'user:update',
         'payment:create',
 
     ],

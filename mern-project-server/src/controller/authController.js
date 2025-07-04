@@ -7,7 +7,7 @@ const { validationResult } = require('express-validator');
 const secret = process.env.JWT_SECRET;
 
 const authController = {
-  // ✅ Email + Password Login
+  // 🔑 Login with email and password
   login: async (request, response) => {
     try {
       const errors = validationResult(request);
@@ -40,7 +40,7 @@ const authController = {
 
       response.cookie('jwtToken', token, {
         httpOnly: true,
-        secure: false, // set to true only if using HTTPS
+        secure: false, // Set to true only for HTTPS
         sameSite: 'Lax',
         path: '/'
       });
@@ -52,13 +52,13 @@ const authController = {
     }
   },
 
-  // ✅ Logout
+  // 🚪 Logout
   logout: (request, response) => {
     response.clearCookie('jwtToken', { path: '/' });
     response.json({ message: 'Logout successful' });
   },
 
-  // ✅ Session Check
+  // 🔄 Session check
   isUserLoggedIn: async (request, response) => {
     const token = request.cookies.jwtToken;
 
@@ -76,7 +76,7 @@ const authController = {
     });
   },
 
-  // ✅ Register New User
+  // 📝 Register a new user
   register: async (request, response) => {
     try {
       const { username, password, name } = request.body;
@@ -125,7 +125,7 @@ const authController = {
     }
   },
 
-  // ✅ Google Auth
+  // 🔐 Google OAuth login
   googleAuth: async (request, response) => {
     try {
       const { idToken } = request.body;
@@ -145,7 +145,6 @@ const authController = {
       const { sub: googleId, name, email } = payload;
 
       let user = await Users.findOne({ email });
-
       if (!user) {
         user = new Users({
           email,

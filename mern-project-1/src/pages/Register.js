@@ -4,9 +4,12 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         username: "",
         password: "",
@@ -16,36 +19,33 @@ function Register() {
     const [errors, setErrors] = useState({});
 
     const handleChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-
-        setFormData({
-            ...formData,
+        const { name, value } = event.target;
+        setFormData(prev => ({
+            ...prev,
             [name]: value
-        });
+        }));
     };
 
     const validate = () => {
         let newErrors = {};
         let isValid = true;
-        if (formData.username.length === 0) {
+
+        if (!formData.username.trim()) {
             newErrors.username = "Username is mandatory";
             isValid = false;
         }
-
-        if (formData.password.length === 0) {
+        if (!formData.password.trim()) {
             newErrors.password = "Password is mandatory";
             isValid = false;
         }
-
-        if (formData.name.length === 0) {
+        if (!formData.name.trim()) {
             newErrors.name = "Name is mandatory";
             isValid = false;
         }
 
         setErrors(newErrors);
         return isValid;
-    }
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -56,21 +56,19 @@ function Register() {
                 password: formData.password,
                 name: formData.name
             };
-            const configuration = {
+            const config = {
                 withCredentials: true
             };
             try {
-                const response = await axios.post(
-                    `${serverEndpoint}/auth/register`,
-                    body, configuration);
+                const response = await axios.post(`${serverEndpoint}/auth/register`, body, config);
                 dispatch({
                     type: SET_USER,
                     payload: response.data.user
                 });
-
+                navigate('/dashboard');
             } catch (error) {
                 if (error?.response?.status === 401) {
-                    setErrors({ message: 'User exist with the given email' });
+                    setErrors({ message: 'User exists with the given email' });
                 } else {
                     setErrors({ message: 'Something went wrong, please try again' });
                 }
@@ -88,17 +86,18 @@ function Register() {
 
             dispatch({
                 type: SET_USER,
-                payload: response.data.userDetails
+                payload: response.data.user  // ✅ Corrected here
             });
+
+            navigate('/dashboard');
         } catch (error) {
-            console.log(error);
-            setErrors({ message: 'Something went wrong while google signin' });
+            console.error("Google Sign-In Error:", error);
+            setErrors({ message: 'Something went wrong while signing in with Google' });
         }
     };
 
-    const handleGoogleSigninFailure = async (error) => {
-        console.log(error);
-        setErrors({ message: 'Something went wrong while google signin' });
+    const handleGoogleSigninFailure = () => {
+        setErrors({ message: 'Google Sign-In failed. Try again.' });
     };
 
     return (
@@ -107,7 +106,6 @@ function Register() {
                 <div className="col-md-4">
                     <h2 className="text-center mb-4">Sign up with a new account</h2>
 
-                    {/* Error Alert */}
                     {errors.message && (
                         <div className="alert alert-danger" role="alert">
                             {errors.message}
@@ -126,16 +124,14 @@ function Register() {
                                 onChange={handleChange}
                             />
                             {errors.name && (
-                                <div className="invalid-feedback">
-                                    {errors.name}
-                                </div>
+                                <div className="invalid-feedback">{errors.name}</div>
                             )}
                         </div>
 
                         <div className="mb-3">
-                            <label htmlFor="username" className="form-label">Username</label>
+                            <label htmlFor="username" className="form-label">Username (Email)</label>
                             <input
-                                type="text"
+                                type="email"
                                 className={`form-control ${errors.username ? 'is-invalid' : ''}`}
                                 id="username"
                                 name="username"
@@ -143,9 +139,7 @@ function Register() {
                                 onChange={handleChange}
                             />
                             {errors.username && (
-                                <div className="invalid-feedback">
-                                    {errors.username}
-                                </div>
+                                <div className="invalid-feedback">{errors.username}</div>
                             )}
                         </div>
 
@@ -160,14 +154,12 @@ function Register() {
                                 onChange={handleChange}
                             />
                             {errors.password && (
-                                <div className="invalid-feedback">
-                                    {errors.password}
-                                </div>
+                                <div className="invalid-feedback">{errors.password}</div>
                             )}
                         </div>
 
                         <div className="d-grid">
-                            <button type="submit" className="btn btn-primary">Submit</button>
+                            <button type="submit" className="btn btn-primary">Register</button>
                         </div>
                     </form>
 
