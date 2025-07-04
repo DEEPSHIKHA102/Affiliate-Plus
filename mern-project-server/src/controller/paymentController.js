@@ -33,9 +33,7 @@ const paymentController = {
             });
         } catch (error) {
             console.log(error);
-            response.status(500).json({
-                message: 'Internal server error'
-            });
+            response.status(500).json({ message: 'Internal server error'});
         }
     },
 
@@ -43,14 +41,11 @@ const paymentController = {
     verifyOrder: async (request, response) => {
         try {
             const {
-                razorpay_order_id,
-                razorpay_payment_id,
-                razorpay_signature,
-                credits
+                razorpay_order_id,razorpay_payment_id,
+                razorpay_signature,credits
             } = request.body;
 
             const body = razorpay_order_id + "|" + razorpay_payment_id;
-
             const expectedSignature = crypto
                 .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
                 .update(body.toString())

@@ -16,6 +16,8 @@ import { Spinner } from "react-bootstrap";
 import ManageUsers from "./pages/users/ManageUsers";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import ProtectedRoute from "./rbac/ProtectedRoute";
+import ManagePayment from "./pages/payments/ManagePayment";
+
 
 function App() {
   // const [userDetails, setUserDetails] = useState(null);
@@ -25,13 +27,17 @@ function App() {
 
   const isUserLoggedIn = async () => {
     try {
-      const response = await axios.post(`${serverEndpoint}/auth/is-user-logged-in`, {}, {
-        withCredentials: true
-      });
+      const response = await axios.post(
+        `${serverEndpoint}/auth/is-user-logged-in`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       // updateUserDetails(response.data.user);
       dispatch({
         type: SET_USER,
-        payload: response.data.user
+        payload: response.data.user,
       });
     } catch (error) {
       console.log(error);
@@ -50,51 +56,114 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={userDetails ?
-        <UserLayout>
-          <Navigate to='/dashboard' />
-        </UserLayout> :
-        <AppLayout>
-          <Home />
-        </AppLayout>
-      }
+      <Route
+        path="/"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <Navigate to="/dashboard" />
+            </UserLayout>
+          ) : (
+            <AppLayout>
+              <Home />
+            </AppLayout>
+          )
+        }
       />
-      <Route path="/login" element={userDetails ?
-        <Navigate to="/dashboard" /> :
-        <AppLayout>
-          <Login />
-        </AppLayout>}
+      <Route
+        path="/login"
+        element={
+          userDetails ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <AppLayout>
+              <Login />
+            </AppLayout>
+          )
+        }
       />
-      <Route path="/register" element={userDetails ?
-        <Navigate to='/dashboard' /> :
-        <AppLayout>
-          <Register />
-        </AppLayout>
-      } />
-      <Route path="/dashboard" element={userDetails ?
-        <UserLayout><Dashboard /></UserLayout> :
-        <Navigate to="/login" />} />
+      <Route
+        path="/register"
+        element={
+          userDetails ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <AppLayout>
+              <Register />
+            </AppLayout>
+          )
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <Dashboard />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
 
-      <Route path="/logout" element={userDetails ?
-        <Logout /> :
-        <Navigate to="/login" />} />
+      <Route
+        path="/logout"
+        element={userDetails ? <Logout /> : <Navigate to="/login" />}
+      />
 
-      <Route path="/error" element={userDetails ?
-        <UserLayout>
-          <Error />
-        </UserLayout> :
-        <AppLayout><Error /></AppLayout>} />
-      <Route path="/users" element={userDetails ?
-        <ProtectedRoute roles={['admin']}>
-          <UserLayout>
-            <ManageUsers />
-          </UserLayout>
-        </ProtectedRoute> :
-        <Navigate to='/login' />
-      } />
-      <Route path="/unauthorized-access" element={userDetails ?
-        <UserLayout><UnauthorizedAccess /></UserLayout> :
-        <Navigate to="/login" />} />
+      <Route
+        path="/error"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <Error />
+            </UserLayout>
+          ) : (
+            <AppLayout>
+              <Error />
+            </AppLayout>
+          )
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          userDetails ? (
+            <ProtectedRoute roles={["admin"]}>
+              <UserLayout>
+                <ManageUsers />
+              </UserLayout>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/unauthorized-access"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <UnauthorizedAccess />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/manage-payments"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <ManagePayment/>
+              </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
     </Routes>
   );
 }
