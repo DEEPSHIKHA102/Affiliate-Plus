@@ -55,7 +55,7 @@ function ManagePayment() {
               payload: response.data.user,
             });
 
-            setMessage(`${credits} credit were added !`);
+            setMessage({ message: `${credits} credits were added!` });
           } catch (error) {
             console.log(error);
             setMessage({
