@@ -6,7 +6,6 @@ const authRoutes = require('./src/routes/authRoutes');
 const linksRoutes = require('./src/routes/linksRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
-
 const cors = require('cors');
 
 mongoose.connect(process.env.MONGO_URI)
@@ -15,7 +14,14 @@ mongoose.connect(process.env.MONGO_URI)
 
 const app = express(); // Instantiate express app.
 
-app.use(express.json()); // Middleware to convert json to javascript object.
+app.use((request, response, next)=>{
+    //skip Middleware for the webhook endpoint.
+    if (request.originalUrl.startsWith('/payments/webhook')){
+        next();
+    }
+    
+    express.json()(request,response, next);
+}); 
 app.use(cookieParser());
 
 const corsOptions = {

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const Users = require('../model/Users');
 const { OAuth2Client } = require('google-auth-library');
 const { validationResult } = require('express-validator');
+const { default: subscriptions } = require('razorpay/dist/types/subscriptions');
 
 const secret = process.env.JWT_SECRET;
 
@@ -33,7 +34,8 @@ const authController = {
         email: user.email,
         role: user.role || 'admin',
         adminId: user.adminId,
-        credits: user.credits || 0
+        credits: user.credits,
+        subscription: data.subscription
       };
 
       const token = jwt.sign(userPayload, secret, { expiresIn: '1h' });
