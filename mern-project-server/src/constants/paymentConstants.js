@@ -5,4 +5,17 @@ const CREDIT_PACKS = {
     100: 100
 };
 
-module.exports = CREDIT_PACKS;
+const PLAN_IDS = {
+    UNLIMITED_YEARLY: {
+        id:process.env.RAZORPAY_YEARLY_PLAN_ID,
+        planName: 'Unlimited Yearly',
+        totalBillingCycleCount: 5
+    },
+    UNLIMITED_MONTHLY: {
+        id:process.env.RAZORPAY_MONTHLY_PLAN_ID,
+        planName: 'Unlimited Monthly',
+        totalBillingCycleCount: 12
+    },
+}
+
+module.exports = {CREDIT_PACKS,PLAN_IDS};
