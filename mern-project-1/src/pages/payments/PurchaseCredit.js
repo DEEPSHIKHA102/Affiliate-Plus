@@ -13,9 +13,16 @@ function PurchaseCredit() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const isPendingSubscription = ['created', 'authenticated', 'cancelled'].includes(
+    userDetails?.subscription?.status
+  );
 
   const handleBuyCredits = async (credits) => {
     setShowModal(false);
+    setIsProcessing(true);
+    setMessage("We're confirming the status of your payment. This may take up to 5 minutes.");
     try {
       const { data } = await axios.post(
         `${serverEndpoint}/payments/create-order`,
@@ -43,15 +50,13 @@ function PurchaseCredit() {
               { withCredentials: true }
             );
 
-            dispatch({
-              type: SET_USER,
-              payload: data
-            });
-
+            dispatch({ type: SET_USER, payload: data });
             setMessage(`${credits} credits added!`);
           } catch (error) {
             console.error(error);
             setErrors({ message: 'Unable to purchase credits, please try again' });
+          } finally {
+            setTimeout(() => setIsProcessing(false), 300000); // 5 mins
           }
         },
         theme: { color: '#3399cc' }
@@ -62,10 +67,13 @@ function PurchaseCredit() {
     } catch (error) {
       console.error(error);
       setErrors({ message: 'Unable to purchase credits, please try again' });
+      setIsProcessing(false);
     }
   };
 
   const handleSubscribe = async (planKey) => {
+    setIsProcessing(true);
+    setMessage("We're confirming the status of your payment. This may take up to 5 minutes.");
     try {
       const { data } = await axios.post(
         `${serverEndpoint}/payments/createsubscription`,
@@ -87,14 +95,12 @@ function PurchaseCredit() {
               { withCredentials: true }
             );
 
-            dispatch({
-              type: SET_USER,
-              payload: user.data
-            });
-
+            dispatch({ type: SET_USER, payload: user.data });
             setMessage('Subscription activated');
           } catch (error) {
             setErrors({ message: 'Unable to activate subscription, please try again' });
+          } finally {
+            setTimeout(() => setIsProcessing(false), 300000);
           }
         },
         theme: { color: "#3399cc" }
@@ -105,6 +111,7 @@ function PurchaseCredit() {
     } catch (error) {
       console.error(error);
       setErrors({ message: 'Failed to create subscription' });
+      setIsProcessing(false);
     }
   };
 
@@ -112,7 +119,15 @@ function PurchaseCredit() {
     <section className="ezy__pricing10 light py-5" id="ezy__pricing10">
       <div className="container">
         {errors.message && <div className="alert alert-danger">{errors.message}</div>}
-        {message && <div className="alert alert-success">{message}</div>}
+        {message && <div className="alert alert-info">{message}</div>}
+
+        {isPendingSubscription && (
+          <div className="alert alert-warning">
+            {userDetails.subscription.status === 'cancelled'
+              ? "We're cancelling your subscription. This may take up to 5 minutes."
+              : "We're confirming the status of your payment. This may take up to 5 minutes."}
+          </div>
+        )}
 
         <div className="d-flex justify-content-between align-items-start w-100">
           <div className="text-left">
@@ -147,7 +162,7 @@ function PurchaseCredit() {
                     </li>
                   ))}
                 </ul>
-                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                <button className="btn btn-primary" onClick={() => setShowModal(true)} disabled={isProcessing || isPendingSubscription}>
                   Buy Credits
                 </button>
               </div>
@@ -168,7 +183,7 @@ function PurchaseCredit() {
                     <li className="pb-2" key={i}>{item.detail}</li>
                   ))}
                 </ul>
-                <button className="btn btn-primary" onClick={() => handleSubscribe('UNLIMITED_MONTHLY')}>
+                <button className="btn btn-primary" onClick={() => handleSubscribe('UNLIMITED_MONTHLY')} disabled={isProcessing || isPendingSubscription}>
                   Subscribe Monthly
                 </button>
               </div>
@@ -189,7 +204,7 @@ function PurchaseCredit() {
                     <li className="pb-2" key={i}>{item.detail}</li>
                   ))}
                 </ul>
-                <button className="btn btn-primary" onClick={() => handleSubscribe('UNLIMITED_YEARLY')}>
+                <button className="btn btn-primary" onClick={() => handleSubscribe('UNLIMITED_YEARLY')} disabled={isProcessing || isPendingSubscription}>
                   Subscribe Yearly
                 </button>
               </div>
@@ -197,7 +212,7 @@ function PurchaseCredit() {
           </div>
         </div>
 
-        {/* React-Bootstrap Modal */}
+        {/* Modal */}
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
           <Modal.Header closeButton>
             <Modal.Title>Buy Credits</Modal.Title>
@@ -208,6 +223,7 @@ function PurchaseCredit() {
                 key={c}
                 className="m-2 btn btn-outline-primary"
                 onClick={() => handleBuyCredits(c)}
+                disabled={isProcessing || isPendingSubscription}
               >
                 Buy {c} Credits
               </button>
