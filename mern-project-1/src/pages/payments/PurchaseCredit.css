@@ -1,0 +1,127 @@
+.ezy__pricing10 {
+	--bs-body-color: rgb(50, 62, 80);
+	--bs-body-bg: #ffffff;
+
+	/* Easy Frontend variables */
+	--ezy-theme-color: rgb(13, 110, 253);
+	--ezy-theme-color-rgb: 13, 110, 253;
+	--ezy-card-bg: #f6f6f6;
+	--ezy-card-box-shadow: 0 7px 65px 0 rgb(0 0 0 / 12%);
+	--ezy-btn-color: #ffffff;
+	--ezy-btn-bg: #00bfa5;
+
+	background-color: var(--bs-body-bg);
+}
+
+/* Gray Block Style */
+.gray .ezy__pricing10,
+.ezy__pricing10.gray {
+	/* Bootstrap variables */
+	--bs-body-bg: rgb(246, 246, 246);
+
+	/* Easy Frontend variables */
+	--ezy-card-bg: #fff;
+	--ezy-card-box-shadow: 0 7px 65px 0 rgb(0 0 0 / 12%);
+}
+
+/* Dark Gray Block Style */
+.dark-gray .ezy__pricing10,
+.ezy__pricing10.dark-gray {
+	/* Bootstrap variables */
+	--bs-body-color: #ffffff;
+	--bs-body-bg: rgb(30, 39, 53);
+
+	/* Easy Frontend variables */
+	--ezy-card-bg: #263547;
+	--ezy-card-box-shadow: 0 21px 65px 0 rgba(75, 75, 75, 0.25);
+}
+
+/* Dark Block Style */
+.dark .ezy__pricing10,
+.ezy__pricing10.dark {
+	/* Bootstrap variables */
+	--bs-body-color: #ffffff;
+	--bs-body-bg: rgb(11, 23, 39);
+
+	/* Easy Frontend variables */
+	--ezy-card-bg: #162231;
+	--ezy-card-box-shadow: 0 21px 65px 0 rgba(55, 55, 55, 0.25);
+}
+
+.ezy__pricing10-heading {
+	font-size: 32px;
+	font-weight: 700;
+	line-height: 1;
+	color: var(--bs-body-color);
+}
+
+@media (min-width: 768px) {
+	.ezy__pricing10-heading {
+		font-size: 45px;
+	}
+}
+
+.ezy__pricing10-sub-heading {
+	font-size: 18px;
+	color: var(--bs-body-color);
+	line-height: 1.5;
+	opacity: 0.8;
+}
+
+.ezy__pricing10-separator {
+	padding: 100px 0;
+}
+
+.ezy__pricing10-card {
+	transition: 0.4s;
+	background-color: var(--ezy-card-bg);
+}
+
+.ezy__pricing10-card:hover {
+	background-color: var(--bs-body-bg);
+	box-shadow: var(--ezy-card-box-shadow);
+	transform: translateX(0) translateY(-5px) translateZ(0) rotate(0deg) scale(1);
+}
+
+.ezy__pricing10-card-icon {
+	font-size: 40px;
+	color: var(--bs-body-color);
+}
+
+.ezy__pricing10-meta-price {
+	color: var(--bs-body-color);
+	line-height: 60px;
+}
+
+.ezy__pricing10-period,
+.ezy__pricing10-currency {
+	font-size: 22px;
+}
+
+.ezy__pricing10-currency {
+	top: -35px;
+	position: relative;
+}
+
+.ezy__pricing10-rate {
+	font-size: 45px;
+	font-weight: 100;
+}
+
+.ezy__pricing10-nav li {
+	color: var(--bs-body-color);
+	font-size: 18px;
+	opacity: 0.8;
+}
+
+.ezy__pricing10-btn {
+	background-color: var(--ezy-theme-color);
+	color: #fff;
+	padding: 12px 30px;
+	transition: 0.5s all;
+}
+
+.ezy__pricing10-btn:hover {
+	color: #fff;
+	background-color: rgba(var(--ezy-theme-color-rgb), 0.9);
+}
