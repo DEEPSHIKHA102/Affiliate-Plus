@@ -2,7 +2,6 @@ const Razorpay = require('razorpay');
 const {CREDIT_PACKS, PLAN_IDS} = require("../constants/paymentConstants");
 const crypto = require('crypto');
 const Users = require('../model/Users');
-const { default: subscriptions } = require('razorpay/dist/types/subscriptions');
 const { request } = require('http');
 
 const razorpay = new Razorpay({
