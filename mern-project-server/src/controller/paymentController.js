@@ -111,7 +111,7 @@ const paymentController = {
                 return response.status(400).json({ message: "Subscription ID is mandatory" });
             }
 
-            const data = await razorpay.subscriptions.create(subscription_id);
+            const data = await razorpay.subscriptions.cancel(subscription_id);
             response.json({ data: data });
         } catch (error) {
             console.log(error);
