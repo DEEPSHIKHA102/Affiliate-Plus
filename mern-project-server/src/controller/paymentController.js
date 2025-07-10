@@ -199,7 +199,7 @@ const paymentController = {
             }
 
             console.log(`Updated subscription status for user ${userId} to ${newStatus}`);
-            return response.status(200).send(`Event processed for user: ${userId}`);
+            return response.status(200).send('Event processed succesfully');
         } catch (error) {
             console.log(error);
             return response.status(500).send("Internal server error");

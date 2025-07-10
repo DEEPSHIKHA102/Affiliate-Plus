@@ -1,3 +1,4 @@
+// ✅ ManagePayments.js
 import { useSelector } from "react-redux";
 import PurchaseCredit from "./PurchaseCredit";
 import Subscription from "./Subscription";
