@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator');
 
 // https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
 
 const authController = {
     login: async (request, response) => {
@@ -40,8 +41,18 @@ const authController = {
                 subscription: data.subscription
             };
 
-            const token = jwt.sign(user, secret, { expiresIn: '1h' });
+            const token = jwt.sign(user, secret, { expiresIn: '1m' });
             response.cookie('jwtToken', token, {
+                httpOnly: true,
+                secure: true,
+                domain: 'localhost',
+                path: '/'
+            });
+
+            const refreshToken = jwt.sign(user, refreshSecret , { expiresIn: '7d' });
+            // Stroe it in the database if you want! Storing in DB will
+            // make refresh tokens more secure.
+            response.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: true,
                 domain: 'localhost',
@@ -157,8 +168,19 @@ const authController = {
                 credits: data.credits
             };
 
-            const token = jwt.sign(user, secret, { expiresIn: '1h' });
+            //Making 1 min only for testing, revert it back to 1h
+            const token = jwt.sign(user, secret, { expiresIn: '1m' });
             response.cookie('jwtToken', token, {
+                httpOnly: true,
+                secure: true,
+                domain: 'localhost',
+                path: '/'
+            });
+
+            const refreshToken = jwt.sign(user, refreshSecret , { expiresIn: '7d' });
+            // Stroe it in the database if you want! Storing in DB will
+            // make refresh tokens more secure.
+            response.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: true,
                 domain: 'localhost',
