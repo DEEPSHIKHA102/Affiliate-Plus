@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Users = require("../model/Users");
 const { OAuth2Client } = require("google-auth-library");
 const { validationResult } = require("express-validator");
+const {attemptToRefreshToken} = require('../util/authUtil');
 
 // https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
@@ -41,7 +42,7 @@ const authController = {
         subscription: data.subscription,
       };
 
-      const token = jwt.sign(user, secret, { expiresIn: "1m" });
+      const token = jwt.sign(user, secret, { expiresIn: "1h" });
       response.cookie("jwtToken", token, {
         httpOnly: true,
         secure: true,
@@ -82,8 +83,8 @@ const authController = {
         const refreshToken = request.cookies?.refreshToken;
         if (refreshToken) {
           const {newAccessToken, user} = 
-                await attemptTorefreshToken(refreshToken);
-          response.cookie("jwtToken", newAccessToken, {
+                await attemptToRefreshToken(refreshToken);
+          response.cookie('jwtToken', newAccessToken, {
             httpOnly: true,
             secure: true,
             domain: "localhost",
@@ -187,7 +188,7 @@ const authController = {
       };
 
       //Making 1 min only for testing, revert it back to 1h
-      const token = jwt.sign(user, secret, { expiresIn: "1m" });
+      const token = jwt.sign(user, secret, { expiresIn: "1h" });
       response.cookie("jwtToken", token, {
         httpOnly: true,
         secure: true,

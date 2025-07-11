@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { attemptTorefreshToken } = require('../util/authUtil');
+const { attemptToRefreshToken } = require('../util/authUtil');
 
 const authMiddleware = {
     protect: async (request, response, next) => {
@@ -19,7 +19,7 @@ const authMiddleware = {
                 const refreshToken = request.cookies?.refreshToken;
                 if(refreshToken){
                     const newAccessToken = 
-                        await attemptTorefreshToken(refreshToken);
+                        await attemptToRefreshToken(refreshToken);
                     response.cookie('jwtToken', newAccessToken, {
                         httpOnly: true,
                         secure: true,

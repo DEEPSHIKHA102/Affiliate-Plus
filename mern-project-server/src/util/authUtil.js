@@ -3,8 +3,10 @@ const Users = require('../model/Users');
 const refreshSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
 const secret = process.env.JWT_SECRET;
 
-const attemptTorefreshToken = async (refreshToken) => {
+const attemptToRefreshToken = async (refreshToken) => {
     try{
+        console.log(refreshToken);
+        console.log(refreshSecret);
         const decoded = jwt.verify(refreshToken, refreshSecret);
 
         //fecth the latest user data from db as across 7 days of
@@ -22,7 +24,7 @@ const attemptTorefreshToken = async (refreshToken) => {
         };
 
         //Change expiry to 1hr (1h) after testing
-        const newAccessToken = jwt.sign(user, secret, {expiresIn: '1m'});
+        const newAccessToken = jwt.sign(user, secret, {expiresIn: '1h'});
 
         return {newAccessToken, user};
     }catch(error){
@@ -31,4 +33,4 @@ const attemptTorefreshToken = async (refreshToken) => {
     }
 };
 
-module.exports = { attemptTorefreshToken };
+module.exports = { attemptToRefreshToken };
