@@ -1,0 +1,23 @@
+.hero-section {
+    height: 100vh;
+    background: linear-gradient(to right, #94a6c6, #4f535b);
+    background-size: cover;
+    background-position: center;
+    padding: 0 20px;
+}
+
+.highlight {
+    color: #ffc107;
+    text-shadow: 2px 2px #00000050;
+}
+
+button {
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}

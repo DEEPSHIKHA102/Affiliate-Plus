@@ -1,0 +1,53 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.register-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.register-heading {
+    font-weight: 700;
+    color: #5c6778;
+}
+
+.btn-primary {
+    background-color: #afbcd2;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #1e3c72;
+}
+
+.google-login {
+    display: flex;
+    justify-content: center;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #888;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: .5em;
+}
+.divider:not(:empty)::after {
+    margin-left: .5em;
+}

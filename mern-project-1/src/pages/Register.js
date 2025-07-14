@@ -5,6 +5,7 @@ import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
 import { useNavigate } from "react-router-dom";
+import './Register.css'; // 👈 CSS for this component
 
 function Register() {
     const dispatch = useDispatch();
@@ -56,9 +57,8 @@ function Register() {
                 password: formData.password,
                 name: formData.name
             };
-            const config = {
-                withCredentials: true
-            };
+            const config = { withCredentials: true };
+
             try {
                 const response = await axios.post(`${serverEndpoint}/auth/register`, body, config);
                 dispatch({
@@ -86,7 +86,7 @@ function Register() {
 
             dispatch({
                 type: SET_USER,
-                payload: response.data.user  // ✅ Corrected here
+                payload: response.data.user
             });
 
             navigate('/dashboard');
@@ -103,8 +103,8 @@ function Register() {
     return (
         <div className="container py-5">
             <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <h2 className="text-center mb-4">Sign up with a new account</h2>
+                <div className="col-md-6 col-lg-4 register-container">
+                    <h2 className="text-center mb-4 register-heading">Sign up with a new account</h2>
 
                     {errors.message && (
                         <div className="alert alert-danger" role="alert">
@@ -163,12 +163,9 @@ function Register() {
                         </div>
                     </form>
 
-                    <div className="text-center">
-                        <div className="my-4 d-flex align-items-center text-muted">
-                            <hr className="flex-grow-1" />
-                            <span className="px-2">OR</span>
-                            <hr className="flex-grow-1" />
-                        </div>
+                    <div className="divider">OR</div>
+
+                    <div className="google-login">
                         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
                             <GoogleLogin
                                 onSuccess={handleGoogleSignin}

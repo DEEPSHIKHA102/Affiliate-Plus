@@ -4,6 +4,7 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { serverEndpoint } from "../config/config";
 import { useDispatch } from "react-redux";
 import { SET_USER } from "../redux/user/actions";
+import './Login.css'; // 👈 Custom styles
 
 function Login() {
     const dispatch = useDispatch();
@@ -45,13 +46,11 @@ function Login() {
         e.preventDefault();
 
         if (validate()) {
-            // Data to be sent to the server
             const body = {
                 username: formData.username,
                 password: formData.password
             };
             const config = {
-                // Tells axios to include cookie in the request + some other auth headers
                 withCredentials: true
             };
             try {
@@ -80,22 +79,21 @@ function Login() {
             });
         } catch (error) {
             console.log(error);
-            setErrors({ message: 'Error processing google auth, please try again' });
+            setErrors({ message: 'Error processing Google auth, please try again' });
         }
     };
 
     const handleGoogleError = async (error) => {
         console.log(error);
-        setErrors({ message: 'Error in google authorization flow, please try again' });
+        setErrors({ message: 'Error in Google authorization flow, please try again' });
     }
 
     return (
         <div className="container py-5">
             <div className="row justify-content-center">
-                <div className="col-md-4">
-                    <h2 className="text-center mb-4">Sign in to Continue</h2>
+                <div className="col-md-6 col-lg-4 login-container">
+                    <h2 className="text-center mb-4 login-heading">Sign in to Continue</h2>
 
-                    {/* Error Alert */}
                     {errors.message && (
                         <div className="alert alert-danger" role="alert">
                             {errors.message}
@@ -138,16 +136,13 @@ function Login() {
                         </div>
 
                         <div className="d-grid">
-                            <button type="submit" className="btn btn-primary">Submit</button>
+                            <button type="submit" className="btn btn-primary">Login</button>
                         </div>
                     </form>
 
-                    <div className="text-center">
-                        <div className="my-4 d-flex align-items-center text-muted">
-                            <hr className="flex-grow-1" />
-                            <span className="px-2">OR</span>
-                            <hr className="flex-grow-1" />
-                        </div>
+                    <div className="divider">OR</div>
+
+                    <div className="google-login">
                         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
                             <GoogleLogin
                                 onSuccess={handleGoogleSuccess}
