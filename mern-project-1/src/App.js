@@ -18,7 +18,9 @@ import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import ProtectedRoute from "./rbac/ProtectedRoute";
 import ManagePayments from "./pages/payments/ManagePayments";
 import AnalyticsDashboard from "./pages/links/AnalyticsDashboard";
-
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
+import TriggerReset from "./pages/TriggerReset";
 
 function App() {
   // const [userDetails, setUserDetails] = useState(null);
@@ -158,19 +160,58 @@ function App() {
         element={
           userDetails ? (
             <UserLayout>
-              <ManagePayments/>
-              </UserLayout>
+              <ManagePayments />
+            </UserLayout>
           ) : (
             <Navigate to="/login" />
           )
         }
       />
-      <Route path="/analytics/:id" element={userDetails ? 
-        <UserLayout>
-          <AnalyticsDashboard/>
-        </UserLayout>:
-        <Navigate to='/login'/>
-      }/>
+      <Route
+        path="/analytics/:id"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <AnalyticsDashboard />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          userDetails ? (
+            <Navigate to="/dashboard" />
+          ) : (
+            <AppLayout>
+              <ForgetPassword />
+            </AppLayout>
+          )
+        }
+      />
+
+      <Route
+        path="/reset-password"
+        element={
+          <AppLayout>
+            <ResetPassword />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/trigger-reset"
+        element={
+          userDetails ? (
+            <UserLayout>
+              <TriggerReset />
+            </UserLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
     </Routes>
   );
 }
