@@ -1,9 +1,13 @@
 function UserFooter() {
-    return (
-        <div className="container-fluid bg-light text-center py-3">
-            All rights reserved.
-        </div>
-    );
+  return (
+    <footer className="bg-white text-gray-600 py-3 w-100 position-fixed bottom-0 border-t border-gray-200 shadow-sm">
+      <div className="container text-center">
+        <span className="text-sm">
+          © 2025 Affiliate++. All rights reserved.
+        </span>
+      </div>
+    </footer>
+  );
 }
 
 export default UserFooter;
