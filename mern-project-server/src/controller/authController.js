@@ -3,8 +3,8 @@ const bcrypt = require("bcryptjs");
 const Users = require("../model/Users");
 const { OAuth2Client } = require("google-auth-library");
 const { validationResult } = require("express-validator");
-const {attemptToRefreshToken} = require('../util/authUtil');
-const sendMail = require('../service/emailService');
+const { attemptToRefreshToken } = require("../util/authUtil");
+const sendMail = require("../service/emailService");
 
 // https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
@@ -46,9 +46,9 @@ const authController = {
       const token = jwt.sign(user, secret, { expiresIn: "1h" });
       response.cookie("jwtToken", token, {
         httpOnly: true,
-        secure: true,
-        domain: "localhost",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
 
       const refreshToken = jwt.sign(user, refreshSecret, { expiresIn: "7d" });
@@ -56,9 +56,9 @@ const authController = {
       // make refresh tokens more secure.
       response.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
-        domain: "localhost",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
       response.json({ user: user, message: "User authenticated" });
     } catch (error) {
@@ -83,17 +83,18 @@ const authController = {
       if (error) {
         const refreshToken = request.cookies?.refreshToken;
         if (refreshToken) {
-          const {newAccessToken, user} = 
-                await attemptToRefreshToken(refreshToken);
-          response.cookie('jwtToken', newAccessToken, {
+          const { newAccessToken, user } = await attemptToRefreshToken(
+            refreshToken
+          );
+          response.cookie("jwtToken", newAccessToken, {
             httpOnly: true,
-            secure: true,
-            domain: "localhost",
+            secure: process.env.NODE_ENV === "production",
             path: "/",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
           });
 
-          console.log('Refresh token renewed the access token');
-          return response.json({ message: 'User is logged in', user: user});
+          console.log("Refresh token renewed the access token");
+          return response.json({ message: "User is logged in", user: user });
         }
         return response.status(401).json({ message: "Unauthorized access" });
       } else {
@@ -141,9 +142,9 @@ const authController = {
 
       response.cookie("jwtToken", token, {
         httpOnly: true,
-        secure: true,
-        domain: "localhost",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
       response.json({ message: "User registered", user: userDetails });
     } catch (error) {
@@ -192,9 +193,9 @@ const authController = {
       const token = jwt.sign(user, secret, { expiresIn: "1h" });
       response.cookie("jwtToken", token, {
         httpOnly: true,
-        secure: true,
-        domain: "localhost",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
 
       const refreshToken = jwt.sign(user, refreshSecret, { expiresIn: "7d" });
@@ -202,9 +203,9 @@ const authController = {
       // make refresh tokens more secure.
       response.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
-        domain: "localhost",
+        secure: process.env.NODE_ENV === "production",
         path: "/",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
       response.json({ user: user, message: "User authenticated" });
     } catch (error) {
@@ -228,7 +229,11 @@ const authController = {
       user.resetCodeExpires = expiry;
       await user.save();
 
-      await sendMail(email, "Reset Password Code", `Your 6-digit reset code is: ${code}`);
+      await sendMail(
+        email,
+        "Reset Password Code",
+        `Your 6-digit reset code is: ${code}`
+      );
       return res.status(200).json({ message: "Reset code sent to email" });
     } catch (error) {
       console.error(error);
@@ -264,7 +269,7 @@ const authController = {
       console.error(error);
       return res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 };
 
 module.exports = authController;
