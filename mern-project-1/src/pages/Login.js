@@ -71,14 +71,10 @@ function Login() {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleGoogleSuccess = async (authResponse) => {
     try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      const email = decoded.email;
-
-      const response = await axios.post(`${serverEndpoint}/auth/login`, {
-        username: email,
-        password: "google-oauth"
+      const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
+        idToken: authResponse.credential
       }, {
         withCredentials: true
       });
@@ -90,7 +86,7 @@ function Login() {
 
       navigate("/dashboard");
     } catch (error) {
-      console.error(error);
+      console.log(error);
       if (error.response?.status === 401) {
         setErrors({ message: "Google account not registered. Please contact support or register manually." });
       } else {

@@ -6,7 +6,6 @@ const { validationResult } = require("express-validator");
 const { attemptToRefreshToken } = require("../util/authUtil");
 const sendMail = require("../service/emailService");
 
-// https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
 const refreshSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
 
@@ -27,9 +26,6 @@ const authController = {
       if (!data) {
         return response.status(401).json({ message: "Invalid credentials " });
       }
-      if (!data.password || data.isGoogleUser) {
-  return response.status(401).json({ message: "Use Google login" });
-}
 
       const isMatch = await bcrypt.compare(password, data.password);
       if (!isMatch) {
@@ -71,7 +67,18 @@ const authController = {
   },
 
   logout: (request, response) => {
-    response.clearCookie("jwtToken");
+    response.clearCookie("jwtToken",{
+      httpOnly:true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Node' : 'Lax'
+    });
+    response.clearCookie("refreshToken",{
+      httpOnly:true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: process.env.NODE_ENV === 'production' ? 'Node' : 'Lax'
+    });
     response.json({ message: "Logout successfull" });
   },
 
@@ -149,7 +156,7 @@ const authController = {
         path: "/",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       });
-      response.json({ message: "User registered", user: userDetails });
+      response.json(201).json({ message: "User registered", user: userDetails });
     } catch (error) {
       console.log(error);
       return response.status(500).json({ error: "Internal Server Error" });
