@@ -27,6 +27,9 @@ const authController = {
       if (!data) {
         return response.status(401).json({ message: "Invalid credentials " });
       }
+      if (!data.password || data.isGoogleUser) {
+  return response.status(401).json({ message: "Use Google login" });
+}
 
       const isMatch = await bcrypt.compare(password, data.password);
       if (!isMatch) {
