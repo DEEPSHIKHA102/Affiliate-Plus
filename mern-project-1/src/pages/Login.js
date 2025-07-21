@@ -57,7 +57,7 @@ function Login() {
 
         navigate("/dashboard");
       } catch (error) {
-        console.error(error);
+        console.log(error);
         const backendMessage = error?.response?.data?.message;
 
         if (backendMessage === "Use Google login") {
@@ -96,7 +96,7 @@ function Login() {
   };
 
   const handleGoogleError = (error) => {
-    console.error("Google OAuth Error", error);
+    console.log("Google OAuth Error", error);
     setErrors({ message: 'Google authorization failed, please try again' });
   };
 
