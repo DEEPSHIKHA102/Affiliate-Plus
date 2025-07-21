@@ -1,104 +1,94 @@
 import { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 import { SET_USER } from "../redux/user/actions";
 import { serverEndpoint } from "../config/config";
 
 function Login() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState({
+        username: '',
+        password: ''
+    });
+    const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    const handleChange = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
 
-  const validate = () => {
-    let isValid = true;
-    let newErrors = {};
-
-    if (!formData.username.trim()) {
-      isValid = false;
-      newErrors.username = "Username is mandatory";
-    }
-
-    if (!formData.password.trim()) {
-      isValid = false;
-      newErrors.password = "Password is mandatory";
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validate()) {
-      try {
-        const response = await axios.post(`${serverEndpoint}/auth/login`, {
-          username: formData.username,
-          password: formData.password
-        }, {
-          withCredentials: true
+        setFormData({
+            ...formData,
+            [name]: value
         });
+    };
 
-        dispatch({
-          type: SET_USER,
-          payload: response.data.user
-        });
+    const validate = () => {
+        let isValid = true;
+        let newErrors = {};
 
-        navigate("/dashboard");
-      } catch (error) {
-        console.log(error);
-        const backendMessage = error?.response?.data?.message;
-
-        if (backendMessage === "Use Google login") {
-          setErrors({ message: "This account is linked with Google. Please use Google login." });
-        } else if (backendMessage === "Invalid credentials ") {
-          setErrors({ message: "Invalid credentials, please try again." });
-        } else {
-          setErrors({ message: "Login failed. Please try again." });
+        if (formData.username.length === 0) {
+            isValid = false;
+            newErrors.username = "Username is mandatory";
         }
-      }
+
+        if (formData.password.length === 0) {
+            isValid = false;
+            newErrors.password = "Password is mandatory";
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (validate()) {
+            // Data to be sent to the server
+            const body = {
+                username: formData.username,
+                password: formData.password
+            };
+            const config = {
+                // Tells axios to include cookie in the request + some other auth headers
+                withCredentials: true
+            };
+            try {
+                const response = await axios.post(`${serverEndpoint}/auth/login`, body, config);
+                dispatch({
+                    type: SET_USER,
+                    payload: response.data.user
+                });
+            } catch (error) {
+                console.log(error);
+                setErrors({ message: "Something went wrong, please try again" });
+            }
+        }
+    };
+
+    const handleGoogleSuccess = async (authResponse) => {
+        try {
+            const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
+                idToken: authResponse.credential
+            }, {
+                withCredentials: true
+            });
+            dispatch({
+                type: SET_USER,
+                payload: response.data.user
+            });
+        } catch (error) {
+            console.log(error);
+            setErrors({ message: 'Error processing google auth, please try again' });
+        }
+    };
+
+    const handleGoogleError = async (error) => {
+        console.log(error);
+        setErrors({ message: 'Error in google authorization flow, please try again' });
     }
-  };
-
-  const handleGoogleSuccess = async (authResponse) => {
-    try {
-      const response = await axios.post(`${serverEndpoint}/auth/google-auth`, {
-        idToken: authResponse.credential
-      }, {
-        withCredentials: true
-      });
-
-      dispatch({
-        type: SET_USER,
-        payload: response.data.user
-      });
-
-      navigate("/dashboard");
-    } catch (error) {
-      console.log(error);
-      if (error.response?.status === 401) {
-        setErrors({ message: "Google account not registered. Please contact support or register manually." });
-      } else {
-        setErrors({ message: "Something went wrong with Google login." });
-      }
-    }
-  };
-
-  const handleGoogleError = (error) => {
-    console.log("Google OAuth Error", error);
-    setErrors({ message: 'Google authorization failed, please try again' });
-  };
 
   return (
     <div className="container py-5">
@@ -175,3 +165,9 @@ function Login() {
 }
 
 export default Login;
+
+
+
+
+
+
