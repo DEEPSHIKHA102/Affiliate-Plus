@@ -169,7 +169,7 @@ function LinksDashboard() {
         formData.append("timestamp", data.timestamp);
 
         const response = await axios.post(
-            `http://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
+            `https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
             formData
         );
 
