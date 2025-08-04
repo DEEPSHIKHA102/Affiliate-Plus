@@ -19,8 +19,6 @@ Affiliate++ is a full-stack SaaS platform designed for affiliate marketers to cr
 ##  Live Demo
 [Affiliate++ on Netlify](https://affiliate-plus.netlify.app)
 
-## Folder Structure
-- `/client` – React Frontend
 - `/server` – Express Backend
 
 
